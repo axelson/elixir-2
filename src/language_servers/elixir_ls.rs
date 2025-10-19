@@ -95,10 +95,15 @@ impl ElixirLs {
         &mut self,
         worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        let settings = LspSettings::for_worktree("elixir-ls", worktree)
+        let mut settings = LspSettings::for_worktree("elixir-ls", worktree)
             .ok()
             .and_then(|lsp_settings| lsp_settings.settings.clone())
             .unwrap_or_default();
+
+        // Set "elixirLS.projectDir": "services/app"
+        if let serde_json::Value::Object(ref mut map) = settings {
+            map.insert("projectDir".to_string(), serde_json::Value::String("services/app".to_string()));
+        }
 
         Ok(Some(serde_json::json!({
             "elixirLS": settings
